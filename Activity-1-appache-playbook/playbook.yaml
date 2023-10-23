@@ -1,0 +1,12 @@
+---
+- name: activity1 - instaltion of apache server in nodes
+  become: yes
+  hosts: all
+  tasks:
+    - name: install apache
+      ansible.builtin.apt:
+        name:
+          - apache2
+        state: present
+        update_cach: yes
+        
