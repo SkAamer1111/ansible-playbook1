@@ -1,0 +1,18 @@
+---
+- name: activity 2 - installation of php on apache server
+  become: yes
+  hosts: all
+  tasks:
+    - name: installation of php on apache
+      ansible.builtin.apt:
+        name:
+          - apache2
+          - php 
+          - libapache2-mod-php 
+          - php-mysql
+        state: present
+        update_cache: yes
+    - name: create file php.info in /var/www/html/info.php with some content
+      ansible.builtin.file:
+        src: info.php
+        dest : /var/www/html/info.php
