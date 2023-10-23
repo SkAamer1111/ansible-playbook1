@@ -13,6 +13,6 @@
         state: present
         update_cache: yes
     - name: create file php.info in /var/www/html/info.php with some content
-      ansible.builtin.file:
+      ansible.builtin.copy:
         src: info.php
         dest : /var/www/html/info.php
