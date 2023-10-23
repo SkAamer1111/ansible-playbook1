@@ -8,5 +8,5 @@
         name:
           - apache2
         state: present
-        update_cach: yes
+        update_cache: yes
         
