@@ -11,12 +11,13 @@
           - php-cli 
           - php-common 
           - php-gd 
-          - php-mysqlnd php-pdo 
+          - php-mysqlnd 
+          - php-pdo 
         state: present
     - name: create a file
-      ansibe.builtin.copy:
+      ansible.builtin.copy:
         content: <?php phpinfo(); ?>
-        dest: /etc/www/html/info.php
+        dest: /var/www/html/info.php
     - name: start service
       ansible.builtin.service:
         name: httpd
