@@ -14,10 +14,10 @@
 
     - name: install php and apache 
       ansible.builtin.package:
-        name: {{ item }} 
+        name: "{{ item }} "
         state: present
         update_cache: yes
-      loop: {{ all_packages }} 
+      loop: "{{ all_packages }} "
 
     - name: create a file info.php  
       ansible.builtin.copy:
@@ -26,6 +26,6 @@
         
     - name: start the service 
       ansible.builtin.service:
-        name: {{ package_name }}
+        name: "{{ package_name }}"
         enabled: yes
         state: started

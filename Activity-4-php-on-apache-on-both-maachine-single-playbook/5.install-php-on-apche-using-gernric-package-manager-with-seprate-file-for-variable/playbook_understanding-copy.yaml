@@ -14,10 +14,10 @@
 
     - name: install php and apache # this task is to install applications/package using genrics method
       ansible.builtin.package: # moudle of genric package
-        name: {{ item }}  # it select one by one item from loop
+        name: "{{ item }}"  # it select one by one item from loop
         state: present # present means install
         update_cache: yes  # this measn "sudo apt update" or "sudo dnf update"
-      loop: {{ all_packages }}  # we pass variable, wwhere we stored all packages to install 
+      loop: "{{ all_packages }}"  # we pass variable, wwhere we stored all packages to install 
 
     - name: create a file info.php  # this task is to create file (for php installtion)
       ansible.builtin.copy: # copy module is used for creating file
@@ -26,6 +26,6 @@
         
     - name: start the service # this task is to start apche ,in redhat apcahe is not auto start so we have to start the service
       ansible.builtin.service: # sefvice module is used 
-        name: {{ package_name }} # pass name of package which we have to start
+        name: "{{ package_name }}" # pass name of package which we have to start
         enabled: yes # for service enbable
         state: started # for servie start
