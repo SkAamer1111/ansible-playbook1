@@ -1,0 +1,31 @@
+---
+- name: install php on apache (ubuntu and red hat) only one playbook
+  become: yes
+  hosts: webservers
+  tasks:
+    - name: checking os 
+      ansible.builtin.fail:
+        msg: this is unsupported os - "it support ubuntu and redhat"
+      when: ansible_facts["_os_family"] != "Debian" and ansible_facts["_os_family"] != "RedHat"
+    
+    - name: print all variables
+      ansible.builtin.debug:
+        var: all_packages
+
+    - name: install php and apache 
+      ansible.builtin.package:
+        name: {{ item }} 
+        state: present
+        update_cache: yes
+      loop: {{ all_packages }} 
+
+    - name: create a file info.php  
+      ansible.builtin.copy:
+        conten: <?php phpinfo(); ?>
+        dest: /var/www/html/info.php
+        
+    - name: start the service 
+      ansible.builtin.service:
+        name: {{ package_name }}
+        enabled: yes
+        state: started

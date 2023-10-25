@@ -1,0 +1,45 @@
+---
+- name: install php on apache (ubuntu and red hat) only one playbook
+  become: yes
+  hosts: webservers
+  tasks:
+    - name: checking os # if machine is not ubuntu adn red hat than this will execute and give message at console to understand user
+      ansible.builtin.fail:
+        msg: this is unsupported os - "it support ubuntu and redhat"
+      when: ansible_facts["_os_family"] != "Debian" and ansible_facts["_os_family"] != "RedHat"
+
+    - name: install php and apache # installtion php on ubuntu
+      ansible.builtin.apt:
+        name: 
+          - apache2
+          - php
+          - libapache2-mod-php
+          - php-mysql
+        state: present
+        update_cache: yes
+      when: ansible_facts["os_family="] == "Debian" # this check if machine is ubuntu then install apcahe and php
+
+    - name: install httpd and php # installtion php on redhat
+      ansible.builtin.dnf:
+        name:
+          - httpd
+          - php 
+          - php-cli 
+          - php-common 
+          - php-gd 
+          - php-mysqlnd 
+          - php-pdo 
+        state: present
+      when: ansible_facts["os_family="] == "RedHat" # this check if machine is red hat then install apcahe and php
+
+    - name: create a file info.php  # this task is common for both machine so, no facts and conditions
+      ansible.builtin.copy:
+        conten: <?php phpinfo(); ?>
+        dest: /var/www/html/info.php
+        
+    - name: start the service # in ubuntu apache is automactically start but in red hat we have to start
+      ansible.builtin.service:
+        name: httpd
+        enabled: yes
+        state: started
+      when: ansible_facts["os_family="] == "RedHat" # if machine is red hat then we have to start the service

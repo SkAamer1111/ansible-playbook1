@@ -1,0 +1,31 @@
+---
+- name: install php on apache (ubuntu and red hat) only one playbook
+  become: yes # root permission as in command we use "sudo" thatwhy we have to give yes
+  hosts: webservers # here in webserver group we have to run the playbook 
+  tasks:
+    - name: checking os  #this tsak is to check os is same or diff, if operating system is different then it gives error
+      ansible.builtin.fail:
+        msg: this is unsupported os - "it support ubuntu and redhat"
+      when: ansible_facts["_os_family"] != "Debian" and ansible_facts["_os_family"] != "RedHat" # this check os is ubuntu and redhat, if not then give message error i console
+    
+    - name: print all variables # this task is to print all variable
+      ansible.builtin.debug: # debug module is used to print variable
+        var: all_packages # var is for variable and we have to pass name of variable
+
+    - name: install php and apache # this task is to install applications/package using genrics method
+      ansible.builtin.package: # moudle of genric package
+        name: {{ item }}  # it select one by one item from loop
+        state: present # present means install
+        update_cache: yes  # this measn "sudo apt update" or "sudo dnf update"
+      loop: {{ all_packages }}  # we pass variable, wwhere we stored all packages to install 
+
+    - name: create a file info.php  # this task is to create file (for php installtion)
+      ansible.builtin.copy: # copy module is used for creating file
+        conten: <?php phpinfo(); ?> # we write what we want to store in the file
+        dest: /var/www/html/info.php # path where to create file
+        
+    - name: start the service # this task is to start apche ,in redhat apcahe is not auto start so we have to start the service
+      ansible.builtin.service: # sefvice module is used 
+        name: {{ package_name }} # pass name of package which we have to start
+        enabled: yes # for service enbable
+        state: started # for servie start
