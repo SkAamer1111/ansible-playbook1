@@ -1,8 +1,7 @@
 [local]
-
+172.31.27.210
 
 [webservers]
 
-ip-address-ubuntu 
-
-ip-address-redhat
+172.31.30.248
+172.31.23.169

@@ -1,8 +1,10 @@
 [local]
-
+172.31.27.210
 
 [webservers]
 
-ip-address-ubuntu package_name=apache2 all_packages='["apache2","php","libapache2-mod-php","php-mysql"]'
+172.31.30.248 package_name=apache2 all_packages='["apache2","php","libapache2-mod-php","php-mysql"]'
 
-ip-address-redhat package_name=httpd all_packages='["httpd","php","php-cli","php-common","php-gd","php-mysqlnd","php-pdo"]'
+172.31.23.169 package_name=httpd all_packages='["httpd","php","php-cli","php-common","php-gd","php-mysqlnd","php-pdo"]'
+
+
