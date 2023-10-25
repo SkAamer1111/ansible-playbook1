@@ -6,7 +6,7 @@
     - name: checking os 
       ansible.builtin.fail:
         msg: this is unsupported os - "it support ubuntu and redhat"
-      when: ansible_facts["_os_family"] != "Debian" and ansible_facts["_os_family"] != "RedHat"
+      when: ansible_facts["os_family"] != "Debian" and ansible_facts["os_family"] != "RedHat"
     
     - name: print all variables
       ansible.builtin.debug:
@@ -21,7 +21,7 @@
 
     - name: create a file info.php  
       ansible.builtin.copy:
-        conten: <?php phpinfo(); ?>
+        content: <?php phpinfo(); ?>
         dest: /var/www/html/info.php
         
     - name: start the service 
