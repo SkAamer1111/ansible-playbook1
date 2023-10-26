@@ -1,0 +1,36 @@
+---
+- name: installing tomcat on ubuntu 22.04
+  become: yes
+  hosts: appservers
+  vars:
+    home_dirctory: /opt/tomcat
+    shell: /bin/false
+    user_name: tomcat
+    group_name: tomcat
+    tomcat_major_version: 10
+    tomcat_link: "wget https://www-eu.apache.org/dist/tomcat/tomcat-{{ tomcat_major_version }}/v${{ tomcat_version }}/bin/apache-tomcat-${{ tomcat_version }}.tar.gz"
+  tasks:
+    - name: check os is ubuntu or not
+      ansible.builtin.fail:
+        msg: "this is works on only ubuntu distribution"
+      when: ansible_facts["os_family"] == "Debian"
+
+    - name: installing java 11 
+      ansible.builtin.apt:
+        name: "{{ java_version }}"
+        state: present
+        update_cache : yes
+
+    - name: create user with name tomcat and group name tomcat with home directory
+      ansible.builtin.user:
+        name: "{{ user_name }}"
+        group: "{{ group_name }}"
+        shell: "{{ shell }}"
+        home: "{{ home_dirctory }}"
+        state: present
+
+    - name: download tomcat at /tmp location
+      ansible.builtin.get_url:
+        url: "{{ tomcat_link }}"
+        dest: /tmp
+
