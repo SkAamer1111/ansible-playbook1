@@ -54,7 +54,7 @@
         owner: "{{ user_name }}"
         group: "{{ group_name }}"
         state: link
-        
+
     - name: Recursively change ownership of a directory
       ansible.builtin.file:
         path: "{{ home_dirctory }}"
@@ -62,3 +62,19 @@
         recurse: yes
         owner: "{{ user_name }}"
         group: "{{ group_name }}"
+
+    - name: get all files to gives execute permission in one variable
+      ansible.builtin.command: sudo sh -c 'ls /opt/tomcat/latest/bin/*.sh'
+      register: shell_files
+
+    - name: print all shell files
+      ansible.builtin.debug:
+        var: shell_files
+
+    - name: Give insecure permissions to an existing file
+      ansible.builtin.file:
+        path: "{{ item }}"
+        owner: "{{ user_name }}"
+        group: "{{ group_name }}"
+        mode: '0751'
+      loop: "{{ shell_files.stdout_lines }}"
