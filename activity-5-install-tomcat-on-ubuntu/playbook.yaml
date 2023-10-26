@@ -8,7 +8,7 @@
     user_name: tomcat
     group_name: tomcat
     tomcat_major_version: 10
-    tomcat_link: "wget https://www-eu.apache.org/dist/tomcat/tomcat-{{ tomcat_major_version }}/v${{ tomcat_version }}/bin/apache-tomcat-${{ tomcat_version }}.tar.gz"
+    tomcat_link: "https://www-eu.apache.org/dist/tomcat/tomcat-{{ tomcat_major_version }}/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz"
   tasks:
     - name: check os is ubuntu or not
       ansible.builtin.fail:
@@ -25,7 +25,7 @@
       ansible.builtin.user:
         name: "{{ group_name }}"
         state: present
-     stat
+    
     - name: create user with name tomcat and group name tomcat with home directory
       ansible.builtin.user:
         name: "{{ user_name }}"
@@ -37,5 +37,28 @@
     - name: download tomcat at /tmp location
       ansible.builtin.get_url:
         url: "{{ tomcat_link }}"
-        dest: /tmp
+        dest: "/tmp/apache-tomcat-{{ tomcat_version }}.tar.gz"
 
+    - name: untar / extract file
+      ansible.builtin.unarchive:
+        copy: false
+        src: "/tmp/apache-tomcat-{{ tomcat_version }}.tar.gz"
+        dest: "{{ home_dirctory }}"
+        group: "{{ group_name }}"
+        owner: "{{ user_name }}"
+
+    - name: create a symbolic link
+      ansible.builtin.file:
+        src: "{{ home_dirctory }}/apache-tomcat-{{ tomcat_version }}"
+        dest: "{{ home_dirctory }}/latest"
+        owner: "{{ user_name }}"
+        group: "{{ group_name }}"
+        state: link
+        
+    - name: Recursively change ownership of a directory
+      ansible.builtin.file:
+        path: "{{ home_dirctory }}"
+        state: directory
+        recurse: yes
+        owner: "{{ user_name }}"
+        group: "{{ group_name }}"
