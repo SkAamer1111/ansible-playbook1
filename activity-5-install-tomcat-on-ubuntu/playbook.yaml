@@ -13,7 +13,7 @@
     - name: check os is ubuntu or not
       ansible.builtin.fail:
         msg: "this is works on only ubuntu distribution"
-      when: ansible_facts["os_family"] == "Debian"
+      when: ansible_facts["os_family"] != "Debian"
 
     - name: installing java 11 
       ansible.builtin.apt:
@@ -21,6 +21,11 @@
         state: present
         update_cache : yes
 
+    - name: ensure group tomcat is present
+      ansible.builtin.user:
+        name: "{{ group_name }}"
+        state: present
+     stat
     - name: create user with name tomcat and group name tomcat with home directory
       ansible.builtin.user:
         name: "{{ user_name }}"
