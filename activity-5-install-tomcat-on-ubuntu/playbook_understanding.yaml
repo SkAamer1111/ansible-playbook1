@@ -1,0 +1,80 @@
+---
+- name: installing tomcat on ubuntu 22.04
+  become: yes
+  hosts: appservers
+  vars: # create variable which fixed used for installation
+    home_dirctory: /opt/tomcat
+    shell: /bin/false
+    user_name: tomcat
+    group_name: tomcat
+    tomcat_major_version: 10
+    tomcat_link: "https://www-eu.apache.org/dist/tomcat/tomcat-{{ tomcat_major_version }}/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz"
+  tasks:
+    - name: check os is ubuntu or not # task 1 is checking os is ubuntu or not
+      ansible.builtin.fail:
+        msg: "this is works on only ubuntu distribution"
+      when: ansible_facts["os_family"] != "Debian"
+
+    - name: installing java 11 # installation of java
+      ansible.builtin.apt:
+        name: "{{ java_version }}" # used variable declare in <ip-address.yaml> file, because in future anyone want to change version, change from that file 
+        state: present
+        update_cache : yes
+
+    - name: ensure group tomcat is present # while creating user in below task we need group name for that we create here group
+      ansible.builtin.user:
+        name: "{{ group_name }}"
+        state: present
+    
+    - name: create user with name tomcat and group name tomcat with home directory # creating user and group name also same as username
+      ansible.builtin.user:
+        name: "{{ user_name }}"
+        group: "{{ group_name }}"
+        shell: "{{ shell }}"
+        home: "{{ home_dirctory }}"
+        state: present
+
+    - name: download tomcat at /tmp location # download tomcat 
+      ansible.builtin.get_url:
+        url: "{{ tomcat_link }}"
+        dest: "/tmp/apache-tomcat-{{ tomcat_version }}.tar.gz"
+
+    - name: untar / extract file # extract file
+      ansible.builtin.unarchive:
+        copy: false
+        src: "/tmp/apache-tomcat-{{ tomcat_version }}.tar.gz"
+        dest: "{{ home_dirctory }}"
+        group: "{{ group_name }}"
+        owner: "{{ user_name }}"
+
+    - name: create a symbolic link # create symbolink, infutre more version came, so select always latest version for that we create symbolink
+      ansible.builtin.file:
+        src: "{{ home_dirctory }}/apache-tomcat-{{ tomcat_version }}"
+        dest: "{{ home_dirctory }}/latest"
+        owner: "{{ user_name }}"
+        group: "{{ group_name }}"
+        state: link
+
+    - name: Recursively change ownership of a directory # change owner fromm root to tomcat
+      ansible.builtin.file:
+        path: "{{ home_dirctory }}"
+        state: directory
+        recurse: yes
+        owner: "{{ user_name }}"
+        group: "{{ group_name }}"
+
+    - name: get all files to gives execute permission in one variable # we have to give execute permission to all .sh file so we have to get all .sh file one by one , so ue variable and store all .sh file
+      ansible.builtin.command: sudo sh -c 'ls /opt/tomcat/latest/bin/*.sh'
+      register: shell_files # Reguster is variable is used to store output of ansible.builtin.command
+
+    - name: print all shell files # we printing all .ssh file
+      ansible.builtin.debug:
+        var: shell_files
+
+    - name: Give insecure permissions to an existing file # giving permission one by one
+      ansible.builtin.file:
+        path: "{{ item }}" # 2. get one by one .sh file here
+        owner: "{{ user_name }}" # 3. change owner
+        group: "{{ group_name }}" # 4. change group 
+        mode: '0751' # giver read write and execute permission for read "serach google for mode" "owner" -->permission ->"read,write,execute" --> 7, group -->"read,execute"-->5, other -->"execute"-->1 i.e "0751" 
+      loop: "{{ shell_files.stdout_lines }}" #1. first create loop so it take one by one .sh file and pass o "item"
